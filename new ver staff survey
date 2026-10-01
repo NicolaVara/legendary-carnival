@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Why Should You Complete the Staff Survey?</title>
+
+<style>
+
+:root{
+--nhs-blue:#005EB8;
+--nhs-dark:#003087;
+--nhs-green:#007F3B;
+--nhs-red:#DA291C;
+--nhs-grey:#768692;
+--nhs-light:#F4F7F9;
+--nhs-amber:#FFB81C;
+}
+
+*{
+box-sizing:border-box;
+}
+
+body{
+font-family:Segoe UI,Arial,sans-serif;
+margin:0;
+background:var(--nhs-light);
+color:#212b32;
+}
+
+header{
+background:var(--nhs-blue);
+color:white;
+padding:28px;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:24px;
+}
+
+.card{
+background:white;
+padding:24px;
+border-radius:12px;
+margin-bottom:20px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.question{
+border:1px solid #d9e1e8;
+border-radius:10px;
+padding:18px;
+margin-bottom:20px;
+}
+
+.bar{
+height:18px;
+background:#ddd;
+border-radius:9px;
+overflow:hidden;
+margin:4px 0 12px 0;
+}
+
+.fill{
+height:100%;
+}
+
+.pos{
+background:var(--nhs-green);
+}
+
+.neu{
+background:var(--nhs-grey);
+}
+
+.neg{
+background:var(--nhs-red);
+}
+
+.comment{
+background:#f5f8fb;
+border-left:4px solid var(--nhs-grey);
+padding:10px;
+margin:6px 0;
+}
+
+.priority-list{
+list-style:none;
+padding:0;
+}
+
+.priority-list li{
+padding:14px;
+margin-bottom:10px;
+background:white;
+border:2px solid #d9e1e8;
+border-radius:8px;
+cursor:grab;
+}
+
+.priority-list li:hover{
+border-color:var(--nhs-blue);
+}
+
+.dragging{
+opacity:.5;
+}
+
+button{
+background:var(--nhs-blue);
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+}
+
+button:hover{
+background:var(--nhs-dark);
+}
+
+.hidden{
+display:none;
+}
+
+.highlight{
+background:#fff8df;
+border-left:5px solid var(--nhs-amber);
+padding:16px;
+margin-top:15px;
+}
+
+.voice-summary{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.voice-box{
+background:#eef5fb;
+padding:20px;
+border-radius:10px;
+text-align:center;
+}
+
+.big-number{
+font-size:60px;
+font-weight:bold;
+color:var(--nhs-blue);
+}
+
+.score{
+font-size:48px;
+font-weight:bold;
+color:var(--nhs-blue);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#eef4f8;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Why should you complete the Staff Survey?</h1>
+<p>Review the information available and decide what should be prioritised.</p>
+</header>
+
+<div class="container">
+
+<div id="game">
+
+<div class="card">
+
+<p>
+
+Imagine you are deciding which areas should receive the greatest attention across an R&D department.
+
+</p>
+
+<p>
+
+The only information available is the feedback that staff choose to share.
+
+</p>
+
+<p>
+
+Review the survey responses and rank the five areas below from:
+
+<strong>1 = Highest Priority</strong>
+
+to
+
+<strong>5 = Lowest Priority</strong>
+
+</p>
+
+</div>
+
+<div id="questions"></div>
+
+<div class="card">
+
+<h2>Rank The Priorities</h2>
+
+<p>
+Drag the items into the order you would prioritise them.
+</p>
+
+<ul id="priorityList" class="priority-list"></ul>
+
+<button onclick="submitRanking()">
+Submit Priorities
+</button>
+
+</div>
+
+</div>
+
+<div id="results" class="hidden"></div>
+
+</div>
+
+<script>
+
+const questionPool = [
+
+{
+id:"initiative",
+name:"Opportunities to Show Initiative",
+positiveComments:[
+"I regularly lead improvements.",
+"I feel empowered to suggest change.",
+"My ideas are listened to.",
+"I can influence local decisions."
+],
+missingComments:[
+"I've never been asked for ideas.",
+"I don't know what authority I have.",
+"Opportunities vary by team."
+]
+},
+
+{
+id:"training",
+name:"Training & Development",
+positiveComments:[
+"I found a useful course recently.",
+"Learning resources are available.",
+"I accessed relevant training."
+],
+missingComments:[
+"Courses are always full.",
+"I don't know how to access study leave.",
+"My requests are often declined."
+]
+},
+
+{
+id:"communication",
+name:"Communication Between Teams",
+positiveComments:[
+"Information is shared clearly.",
+"Updates are useful.",
+"I usually know what's happening."
+],
+missingComments:[
+"I hear about changes too late.",
+"Information varies between teams.",
+"I don't know where updates are stored."
+]
+},
+
+{
+id:"recognition",
+name:"Recognition For Good Work",
+positiveComments:[
+"My work is recognised.",
+"I receive useful feedback.",
+"Achievements are acknowledged."
+],
+missingComments:[
+"Recognition depends on who you work with.",
+"I rarely receive feedback.",
+"Good work often goes unnoticed."
+]
+},
+
+{
+id:"wellbeing",
+name:"Health & Wellbeing",
+positiveComments:[
+"Support is available.",
+"Wellbeing resources are helpful.",
+"I know where to get support."
+],
+missingComments:[
+"I'm not aware of available support.",
+"It's difficult to access help.",
+"I don't know who to contact."
+]
+}
+
+];
+
+let scenario = [];
+
+function randomBetween(min,max){
+return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function buildScenario(){
+
+const hiddenPriority =
+questionPool[Math.floor(Math.random()*questionPool.length)].id;
+
+scenario=[];
+
+questionPool.forEach(q=>{
+
+let positive=randomBetween(55,75);
+let neutral=randomBetween(10,25);
+let negative=100-positive-neutral;
+
+const visible={
+positive,
+neutral,
+negative
+};
+
+let theoretical;
+
+if(q.id===hiddenPriority){
+
+theoretical={
+positive:randomBetween(25,40),
+neutral:randomBetween(30,45),
+negative:100
+};
+
+theoretical.negative=
+100-theoretical.positive-theoretical.neutral;
+
+}else{
+
+theoretical={
+positive:positive-randomBetween(5,15),
+neutral:neutral+randomBetween(8,18)
+};
+
+theoretical.negative=
+100-theoretical.positive-theoretical.neutral;
+
+}
+
+scenario.push({
+...q,
+visible,
+theoretical
+})
+
+});
+
+}
+
+buildScenario();
+
+const questionsDiv=document.getElementById("questions");
+
+scenario.forEach(question=>{
+
+questionsDiv.innerHTML += `
+
+<div class="card question">
+
+<h3>${question.name}</h3>
+
+Positive (${question.visible.positive}%)
+
+<div class="bar">
+<div class="fill pos"
+style="width:${question.visible.positive}%"></div>
+</div>
+
+Neither Agree Nor Disagree (${question.visible.neutral}%)
+
+<div class="bar">
+<div class="fill neu"
+style="width:${question.visible.neutral}%"></div>
+</div>
+
+Negative (${question.visible.negative}%)
+
+<div class="bar">
+<div class="fill neg"
+style="width:${question.visible.negative}%"></div>
+</div>
+
+<h4>Comments Received</h4>
+
+${question.positiveComments
+.sort(()=>0.5-Math.random())
+.slice(0,2)
+.map(c=>`<div class="comment">${c}</div>`)
+.join("")}
+
+</div>
+
+`;
+
+});
+
+const list=document.getElementById("priorityList");
+
+scenario.forEach(question=>{
+
+const li=document.createElement("li");
+li.draggable=true;
+li.textContent=question.name;
+list.appendChild(li);
+
+});
+
+let dragged=null;
+
+document.querySelectorAll("#priorityList li").forEach(item=>{
+
+item.addEventListener("dragstart",()=>{
+
+dragged=item;
+item.classList.add("dragging");
+
+});
+
+item.addEventListener("dragend",()=>{
+
+item.classList.remove("dragging");
+
+});
+
+item.addEventListener("dragover",(e)=>{
+
+e.preventDefault();
+
+});
+
+item.addEventListener("drop",(e)=>{
+
+e.preventDefault();
+
+if(dragged!==item){
+
+const nodes=
+Array.from(list.children);
+
+const draggedIndex=
+nodes.indexOf(dragged);
+
+const targetIndex=
+nodes.indexOf(item);
+
+if(draggedIndex<targetIndex){
+item.after(dragged);
+}else{
+item.before(dragged);
+}
+
+}
+
+});
+
+});
+
+function submitRanking(){
+
+const playerRanking=
+Array.from(list.children)
+.map(x=>x.textContent);
+
+const actualRanking=
+[...scenario]
+.sort((a,b)=>
+(b.theoretical.negative+b.theoretical.neutral)
+-
+(a.theoretical.negative+a.theoretical.neutral)
+)
+.map(x=>x.name);
+
+let score=0;
+
+playerRanking.forEach((item,index)=>{
+
+if(actualRanking[index]===item){
+score++;
+}
+
+});
+
+document.getElementById("game")
+.classList.add("hidden");
+
+document.getElementById("results")
+.classList.remove("hidden");
+
+document.getElementById("results").innerHTML=`
+
+<div class="card">
+
+<h2>Your Priorities Were Submitted</h2>
+
+<p>
+An improvement plan was developed based on your ranking.
+</p>
+
+<p>
+Early feedback appears positive.
+</p>
+
+<button onclick="showReveal(${score})">
+Continue
+</button>
+
+</div>
+
+`;
+
+}
+
+function showReveal(score){
+
+const playerRanking=
+Array.from(list.children)
+.map(x=>x.textContent);
+
+const actualRanking=
+[...scenario]
+.sort((a,b)=>
+(b.theoretical.negative+b.theoretical.neutral)
+-
+(a.theoretical.negative+a.theoretical.neutral)
+)
+.map(x=>x.name);
+
+document.getElementById("results").innerHTML=`
+
+<div class="card">
+
+<h1>But Did The Responses Represent Everyone?</h1>
+
+<p>
+
+You made decisions using the responses available.
+
+Would you have made the same decisions if different voices had been represented?
+
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Responses Received Compared With Department Size</h2>
+
+<div class="voice-summary">
+
+<div class="voice-box">
+<div class="big-number">64</div>
+<div>Responses Received</div>
+</div>
+
+<div class="voice-box">
+<div class="big-number">410</div>
+<div>Staff In Department</div>
+</div>
+
+</div>
+
+<div class="highlight">
+346 experiences were not represented in the information available to you.
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Your Ranking</h2>
+
+<ol>
+${playerRanking.map(x=>`<li>${x}</li>`).join("")}
+</ol>
+
+<h2>Possible Priorities If More Voices Were Represented</h2>
+
+<ol>
+${actualRanking.map(x=>`<li>${x}</li>`).join("")}
+</ol>
+
+<div class="score">
+${score}/5
+</div>
+
+<p>
+Priority matches.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Neutral ≠ No Opinion</h2>
+
+<p>
+It is easy to assume that "Neither Agree Nor Disagree" means a member of staff has no opinion.
+</p>
+
+<p>
+In reality, neutral responses can represent a range of experiences.
+</p>
+
+<div class="comment">
+"I don't know enough to answer."
+</div>
+
+<div class="comment">
+"I've had both positive and negative experiences."
+</div>
+
+<div class="comment">
+"I'm not sure what support is available."
+</div>
+
+<div class="comment">
+"My experience differs from colleagues."
+</div>
+
+<div class="comment">
+"The question doesn't really fit my role."
+</div>
+
+<div class="comment">
+"I've never discussed this topic with my manager."
+</div>
+
+<p>
+These responses still contain valuable information.
+</p>
+
+<p>
+Large neutral groups may highlight uncertainty, lack of awareness, inconsistent experiences between teams, insufficient information, or areas that need further investigation.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>The Voices You Didn't Hear</h2>
+
+${scenario.map(q=>`
+<h3>${q.name}</h3>
+${q.missingComments.slice(0,2).map(c=>`
+<div class="comment">${c}</div>
+`).join("")}
+`).join("")}
+
+</div>
+
+<div class="card">
+
+<h2>What Happened Next?</h2>
+
+<p>
+
+Some staff could not see their experiences reflected in the priorities chosen.
+
+</p>
+
+<p>
+
+Some became less confident that completing the survey would make a difference.
+
+</p>
+
+<h3 style="color:#DA291C;">
+64 responses → 49 responses
+</h3>
+
+</div>
+
+<div class="card">
+
+<h1>Why you should complete the Staff Survey</h1>
+
+<p>
+
+Throughout this exercise, you made reasonable decisions using the information available to you.
+
+</p>
+
+<p>
+
+The challenge was not poor decision-making.
+
+</p>
+
+<p>
+
+The challenge was whether the voices being heard represented everyone.
+
+</p>
+
+<p>
+
+If experiences are missing, priorities can be misunderstood and opportunities for improvement can be missed.
+
+</p>
+
+<div class="highlight">
+
+One additional response may not change a decision.
+
+Hundreds of missing responses can change the entire picture.
+
+</div>
+
+<h2 style="color:#005EB8;">
+Every Voice Changes The Picture
+</h2>
+
+<button onclick="location.reload()">
+Play Again
+</button>
+
+</div>
+
+`;
+
+}
+
+</script>
+
+</body>
+</html>
