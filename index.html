@@ -88,8 +88,8 @@ margin:6px 0;
 }
 
 .missing-voice{
-background:#fff4f4;
-border-left:5px solid #DA291C;
+background:#fffaf0;
+border-left:5px solid #FFB81C;
 padding:12px;
 margin:8px 0;
 font-size:1.05rem;
@@ -680,7 +680,7 @@ Large neutral groups may highlight uncertainty, lack of awareness, inconsistent 
 
 <div class="card">
 
-<h2>The Voices You Didn't Hear</h2>
+<h2>Experiences Missing From The Picture</h2>
 
 <p>
 The survey responses you reviewed suggested one picture.
@@ -700,7 +700,7 @@ ${scenario.map(q=>`
 <h3>${q.name}</h3>
 ${q.missingComments.slice(0,2).map(c=>`
 <div class="missing-voice">
-<em><strong>"${c}"</strong></em>
+<em>"${c}"</em>
 </div>
 `).join("")}
 `).join("")}
